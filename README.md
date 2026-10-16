@@ -2,7 +2,9 @@
 
 DocuTex converts Word documents into clean, editable LaTeX projects with a polished browser workflow.
 
-**Created by Akansh Chahal**
+## Contributors
+
+- **Akansh Chahal**
 
 ## Features
 
