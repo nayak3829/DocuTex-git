@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuTeX | DOCX to LaTeX Converter</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #101936, #39256b, #5145a5);
+            color: #ffffff;
+            padding: 40px 16px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 42px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: #b9a7ff;
+        }
+
+        header p {
+            color: #dedcf5;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: #ffffff;
+            color: #202944;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 18px 50px #00000035;
+            margin-bottom: 22px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .subtitle {
+            color: #68728a;
+            line-height: 1.6;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 15px;
+            margin: 16px 0;
+            border: 2px dashed #b8b0e8;
+            border-radius: 12px;
+            background: #f7f6ff;
+        }
+
+        button {
+            background: linear-gradient(90deg, #6554d9, #8a52d6);
+            color: white;
+            border: none;
+            padding: 13px 22px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 350px;
+            margin: 12px 0;
+            padding: 16px;
+            border: 1px solid #d8d9e8;
+            border-radius: 12px;
+            background: #f8f9fd;
+            color: #202944;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .download-btn {
+            background: #202944;
+        }
+
+        footer {
+            text-align: center;
+            color: #dedcf5;
+            font-size: 13px;
+            margin-top: 28px;
+        }
+
+        @media (max-width: 600px) {
+            .logo {
+                font-size: 34px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <header>
+            <div class="logo">Docu<span>TeX</span></div>
+            <p>Your simple DOCX to LaTeX conversion tool</p>
+        </header>
+
+        <section class="card">
+            <h2>📄 Convert Your Word Document</h2>
+            <p class="subtitle">
+                Upload a Word document (.docx) and convert its text into LaTeX.
+            </p>
+
+            <form action="/" method="POST" enctype="multipart/form-data">
+                <input type="file" name="document" accept=".docx" required>
+                <button type="submit">✨ Convert to LaTeX</button>
+            </form>
+        </section>
+
+        {% if latex_code %}
+        <section class="card">
+            <h2>📝 Your LaTeX Code</h2>
+            <p class="subtitle">
+                Review your generated code below.
+            </p>
+
+            <form action="/download" method="POST">
+                <textarea
+                    name="latex_code"
+                    spellcheck="false"
+                    rows="20"
+                    placeholder="Your LaTeX code will appear here..."
+                >{{ latex_code }}</textarea>
+
+                <button type="submit" class="download-btn">
+                    ⬇ Download .tex File
+                </button>
+            </form>
+        </section>
+        {% endif %}
+
+        <footer>
+            DocuTeX · Simple document conversion
+        </footer>
+
+    </div>
+</body>
+</html>
