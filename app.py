@@ -70,6 +70,15 @@ def sample():
     return render_result(code, original_name='sample-document.docx', stats={'paragraphs': 2, 'chars': len(code), 'time': '< 1s'})
 
 
+@app.route('/edit', methods=['POST'])
+def edit():
+    code = request.form.get('latex_code', '')
+    if not code.strip():
+        return render_result(error='Paste or generate LaTeX before refreshing the preview.')
+    stats = {'paragraphs': max(0, code.count('\\n\\n')), 'chars': len(code), 'time': 'edited'}
+    return render_result(code, original_name=request.form.get('original_name', 'edited-document.docx'), stats=stats)
+
+
 @app.route('/download', methods=['POST'])
 def download():
     return send_file(io.BytesIO(request.form.get('latex_code', '').encode()), mimetype='text/plain', as_attachment=True, download_name='document.tex')
