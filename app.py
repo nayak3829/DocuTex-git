@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, send_file
 from converter import convert_docx_to_latex
-from pathlib import Path
 import io
 
 app = Flask(__name__)
@@ -19,36 +18,12 @@ def home():
             error = "Please upload a .docx file."
         else:
             try:
-                from docx import Document
-
-                doc = Document(io.BytesIO(file.read()))
-                lines = []
-
-                for paragraph in doc.paragraphs:
-                    text = paragraph.text.strip()
-                    if text:
-                        text = (text.replace("\\", r"\textbackslash{}")
-                                    .replace("&", r"\&")
-                                    .replace("%", r"\%")
-                                    .replace("$", r"\$")
-                                    .replace("#", r"\#")
-                                    .replace("_", r"\_")
-                                    .replace("{", r"\{")
-                                    .replace("}", r"\}"))
-                        lines.append(text + "\n\n")
-
-                latex_code = (
-                    "\\documentclass{article}\n"
-                    "\\begin{document}\n\n"
-                    + "".join(lines)
-                    + "\\end{document}\n"
-                )
+                latex_code = convert_docx_to_latex(io.BytesIO(file.read()))
             except Exception:
                 error = "Could not read this file. Please try another DOCX file."
 
-    return render_template(
-        "index.html", latex_code=latex_code, error=error
-    )
+    return render_template("index.html", latex_code=latex_code, error=error)
+
 
 @app.route("/download", methods=["POST"])
 def download():
@@ -61,4 +36,6 @@ def download():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)), debug=True)
+

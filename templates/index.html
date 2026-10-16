@@ -138,9 +138,15 @@
                 Upload a Word document (.docx) and convert its text into LaTeX.
             </p>
 
+            {% if error %}
+            <p role="alert" style="color: #b42318; background: #fff1f0; padding: 12px; border-radius: 10px;">
+                {{ error }}
+            </p>
+            {% endif %}
+
             <form action="/" method="POST" enctype="multipart/form-data">
                 <input type="file" name="document" accept=".docx" required>
-                <button type="submit">✨ Convert to LaTeX</button>
+                <button type="submit">Convert to LaTeX</button>
             </form>
         </section>
 
