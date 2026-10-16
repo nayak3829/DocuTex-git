@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for
+from werkzeug.exceptions import BadRequest, RequestEntityTooLarge
 from werkzeug.utils import secure_filename
 from converter import convert_docx_to_latex
 import io
@@ -62,12 +63,16 @@ def home():
         return render_result(error='This does not look like a valid DOCX file. Please re-save it from Word and try again.')
     try:
         code = convert_docx_to_latex(io.BytesIO(data))
-        item = {'name': filename, 'time': datetime.now().strftime('%b %d, %H:%M'), 'chars': len(code)}
-        history.append(item)
-        stats = {'paragraphs': max(0, code.count('\n\n')), 'chars': len(code), 'time': '< 1s'}
-        return render_result(code, original_name=file.filename, stats=stats)
+    except (BadRequest, ValueError, OSError, zipfile.BadZipFile):
+        return render_result(error='We could not read this DOCX. It may be corrupted, password-protected, or missing required document parts.')
     except Exception:
-        return render_result(error='We could not read this DOCX. It may be corrupted or password-protected.')
+        app.logger.exception('DOCX conversion failed for %s', filename)
+        return render_result(error='Conversion failed unexpectedly. Please try again with another DOCX file.')
+
+    item = {'name': filename, 'time': datetime.now().strftime('%b %d, %H:%M'), 'chars': len(code)}
+    history.append(item)
+    stats = {'paragraphs': max(0, code.count('\n\n')), 'chars': len(code), 'time': '< 1s'}
+    return render_result(code, original_name=file.filename, stats=stats)
 
 
 @app.route('/sample')
@@ -109,9 +114,14 @@ def download_zip():
     return send_file(archive, mimetype='application/zip', as_attachment=True, download_name='docutex-project.zip')
 
 
-@app.errorhandler(413)
+@app.errorhandler(RequestEntityTooLarge)
 def too_large(_):
     return render_result(error='This file is larger than 25 MB. Please choose a smaller document.'), 413
+
+
+@app.errorhandler(BadRequest)
+def malformed_request(_):
+    return render_result(error='The upload could not be read. Please choose the DOCX file again and retry.'), 400
 
 
 if __name__ == '__main__':
