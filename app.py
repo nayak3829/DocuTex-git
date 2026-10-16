@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for
+from werkzeug.utils import secure_filename
 from converter import convert_docx_to_latex
 import io
 import os
@@ -49,14 +50,19 @@ def home():
     file = request.files.get('document')
     if not file or not file.filename:
         return render_result(error='Choose a .docx file before converting.')
-    if not file.filename.lower().endswith('.docx'):
+    filename = secure_filename(file.filename)
+    if not filename or not filename.lower().endswith('.docx'):
         return render_result(error='Unsupported file type. DocuTeX accepts DOCX files only.')
     data = file.read()
+    if not data:
+        return render_result(error='This file is empty. Choose a document with content.')
     if len(data) > app.config['MAX_CONTENT_LENGTH']:
         return render_result(error='This file is larger than 25 MB. Please choose a smaller document.')
+    if not data.startswith(b'PK'):
+        return render_result(error='This does not look like a valid DOCX file. Please re-save it from Word and try again.')
     try:
         code = convert_docx_to_latex(io.BytesIO(data))
-        item = {'name': file.filename, 'time': datetime.now().strftime('%b %d, %H:%M'), 'chars': len(code)}
+        item = {'name': filename, 'time': datetime.now().strftime('%b %d, %H:%M'), 'chars': len(code)}
         history.append(item)
         stats = {'paragraphs': max(0, code.count('\n\n')), 'chars': len(code), 'time': '< 1s'}
         return render_result(code, original_name=file.filename, stats=stats)
