@@ -62,7 +62,10 @@ def home():
     if not data.startswith(b'PK'):
         return render_result(error='This does not look like a valid DOCX file. Please re-save it from Word and try again.')
     try:
-        code = convert_docx_to_latex(io.BytesIO(data))
+        with tempfile.NamedTemporaryFile(suffix='.docx') as uploaded:
+            uploaded.write(data)
+            uploaded.flush()
+            code = convert_docx_to_latex(uploaded.name)
     except (BadRequest, ValueError, OSError, zipfile.BadZipFile):
         return render_result(error='We could not read this DOCX. It may be corrupted, password-protected, or missing required document parts.')
     except Exception:

@@ -1,4 +1,8 @@
 from docx import Document
+from zipfile import BadZipFile, ZipFile
+
+
+REQUIRED_DOCX_PARTS = {'word/document.xml', '[Content_Types].xml'}
 
 
 def escape_latex(text):
@@ -16,8 +20,17 @@ def escape_latex(text):
 
 
 def convert_docx_to_latex(file_path):
+    try:
+        with ZipFile(file_path) as archive:
+            names = set(archive.namelist())
+            if not REQUIRED_DOCX_PARTS.issubset(names):
+                raise ValueError('Invalid DOCX package')
+    except BadZipFile as exc:
+        raise ValueError('Invalid DOCX package') from exc
+
     doc = Document(file_path)
     lines = []
+
     in_bullets = False
 
     for paragraph in doc.paragraphs:
