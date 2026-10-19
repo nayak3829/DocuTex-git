@@ -1,4 +1,5 @@
 from docx import Document
+from docx.opc.exceptions import PackageNotFoundError
 from zipfile import BadZipFile, ZipFile
 
 
@@ -25,22 +26,29 @@ def convert_docx_to_latex(file_path):
             names = set(archive.namelist())
             if not REQUIRED_DOCX_PARTS.issubset(names):
                 raise ValueError('Invalid DOCX package')
-    except BadZipFile as exc:
+    except (BadZipFile, OSError) as exc:
         raise ValueError('Invalid DOCX package') from exc
 
-    doc = Document(file_path)
-    lines = []
+    try:
+        doc = Document(file_path)
+    except (BadZipFile, PackageNotFoundError, ValueError, OSError) as exc:
+        raise ValueError('Invalid DOCX document') from exc
 
+    lines = []
     in_bullets = False
 
     for paragraph in doc.paragraphs:
-        text = paragraph.text.strip()
+        text = (paragraph.text or '').strip()
 
         if not text:
             continue
 
-        style = paragraph.style.name.lower()
+        try:
+            style = (paragraph.style.name or '').lower()
+        except (AttributeError, KeyError):
+            style = ''
         is_bullet = "list bullet" in style or "bullet" in style
+
 
         if is_bullet:
             if not in_bullets:
