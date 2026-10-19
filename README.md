@@ -1,6 +1,6 @@
-# DocuTex
+# DocuTeX — A calmer way to write in LaTeX
 
-DocuTex converts Word documents into clean, editable LaTeX projects with a polished browser workflow.
+DocuTeX converts Word documents into clean, editable LaTeX projects with a polished browser workflow.
 
 ## Contributors
 
