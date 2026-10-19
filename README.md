@@ -4,7 +4,7 @@ DocuTex converts Word documents into clean, editable LaTeX projects with a polis
 
 ## Contributors
 
-- **Akansh Chahal**
+- **Graphic Era University student**
 
 ## Features
 
@@ -57,4 +57,4 @@ Add the project license here before public distribution.
 
 ---
 
-Built with care by **Akansh Chahal**.
+Built with care by **Graphic Era University student**.
